@@ -37,7 +37,7 @@ A collection of quizzes from the same material.
 | Field        | Type     | Notes              |
 |--------------|----------|--------------------|
 | id           | int (PK) | Auto-increment     |
-| name         | string   | Auto-generated or user-provided |
+| name         | string   | Auto-generated from material name + timestamp |
 | created_at   | datetime | UTC                |
 | material_id  | int (FK) | References Material |
 
@@ -57,13 +57,14 @@ One quiz attempt within a session.
 
 ### Question
 
-A single multiple-choice question belonging to a quiz.
+A single multiple-choice question belonging to a quiz. (Scoped to MCQ only for initial implementation.)
 
 | Field          | Type     | Notes                            |
 |----------------|----------|----------------------------------|
 | id             | int (PK) | Auto-increment                   |
 | quiz_id        | int (FK) | References Quiz                  |
 | question_text  | string   | The question                     |
+| topic          | string   | Topic/section label (extracted by AI from source material) |
 | choices        | JSON     | Array of 4 option strings        |
 | correct_answer | int      | Index (0-3) of correct choice    |
 | user_answer    | int      | Nullable, index of user's choice |
@@ -89,7 +90,7 @@ A single multiple-choice question belonging to a quiz.
 | Method | Endpoint             | Description                              |
 |--------|----------------------|------------------------------------------|
 | POST   | /api/sessions        | Create session for a material            |
-| GET    | /api/sessions        | List all sessions with scores and stats  |
+| GET    | /api/sessions        | List all sessions with name, date, best score, and weak topics |
 | GET    | /api/sessions/:id    | Get session detail with its quizzes      |
 
 ### Quizzes
@@ -98,7 +99,8 @@ A single multiple-choice question belonging to a quiz.
 |--------|---------------------------|------------------------------------------------------|
 | POST   | /api/quizzes              | Generate quiz (params: session_id, num_questions, difficulty). Calls OpenAI. |
 | GET    | /api/quizzes/:id          | Get quiz with questions (hides correct answers until submitted) |
-| POST   | /api/quizzes/:id/submit   | Submit answers, auto-grade, return score             |
+| POST   | /api/quizzes/:id/submit   | Submit answers, auto-grade, return score and weak topics |
+| POST   | /api/quizzes/:id/retake   | Create a new quiz with the same questions (answers reset) |
 
 ### User Flow
 
@@ -106,7 +108,7 @@ A single multiple-choice question belonging to a quiz.
 2. Create a Session for that material
 3. Configure and generate a Quiz (num_questions, difficulty)
 4. Answer questions and submit → auto-graded
-5. Redo by creating a new Quiz in the same Session
+5. Redo: either retake the same quiz (same questions, answers reset) or generate a new quiz in the same session
 
 ## Backend Services
 
@@ -130,12 +132,14 @@ A single multiple-choice question belonging to a quiz.
 - Compares user_answer index against correct_answer index for each question
 - Calculates score as percentage
 - Updates Quiz record with score and completed_at timestamp
+- Computes weak topics: groups questions by `topic`, calculates per-topic accuracy, flags topics below 50% as weak
 
 ### Key Decisions
 
 - Extracted text is stored in DB to avoid re-parsing on every quiz generation
-- Redo generates fresh questions via a new OpenAI call (prevents memorization)
+- Redo supports two modes: "retake" reuses the same questions (resets user_answer fields), "new quiz" generates fresh questions via a new OpenAI call
 - OpenAI response is validated for correct JSON structure before storing
+- AI prompt requests a `topic` label per question (derived from the source material) to enable weak-section tracking
 
 ## Frontend Pages
 
@@ -165,13 +169,27 @@ A single multiple-choice question belonging to a quiz.
 
 - Shows score (e.g., 8/10 — 80%)
 - Lists each question with user's answer vs correct answer (green/red highlighting)
-- Button to redo (creates new quiz in same session)
+- Shows weak topics (topics where accuracy < 50%)
+- Button to retake (same questions, answers reset)
+- Button to generate new quiz in same session
 - Button to go back to session
+
+### 5. History Page (`/history`)
+
+- Lists all sessions across all materials
+- Each row shows: session name, material name, date, best score, weak topics
+- Click a session to navigate to its config page
 
 ### Navigation
 
-- Simple top bar with link back to home (upload page)
-- Session history accessible from each material's page
+- Top bar with links to home (upload page) and history page
+
+## Error Handling
+
+- **File upload:** Reject unsupported file types or files exceeding size limit with a clear error message. If markitdown fails to parse (corrupted/password-protected file), return an error and do not create the Material record.
+- **Empty extracted text:** If parsing succeeds but yields no meaningful text, warn the user that quiz generation may produce poor results.
+- **OpenAI API failures:** If the API call fails or returns invalid JSON, return an error to the user with a retry option. Do not store partial/invalid questions.
+- **OpenAI rate limits:** Surface rate limit errors to the user with a "try again in a moment" message. No automatic retry.
 
 ## Docker Compose
 
