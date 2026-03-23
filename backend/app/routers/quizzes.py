@@ -21,6 +21,7 @@ def get_quiz_generator() -> QuizGeneratorService:
     if _quiz_generator is None:
         _quiz_generator = QuizGeneratorService(
             api_key=settings.openai_api_key,
+            base_url=settings.openai_base_url,
             model=settings.openai_model,
         )
     return _quiz_generator

@@ -4,8 +4,8 @@ from openai import AsyncOpenAI
 
 
 class QuizGeneratorService:
-    def __init__(self, api_key: str, model: str = "gpt-4o"):
-        self.client = AsyncOpenAI(api_key=api_key)
+    def __init__(self, api_key: str, base_url: str = "https://api.openai.com/v1", model: str = "gpt-4o"):
+        self.client = AsyncOpenAI(api_key=api_key, base_url=base_url)
         self.model = model
 
     def build_prompt(self, text: str, num_questions: int, difficulty: str) -> str:
