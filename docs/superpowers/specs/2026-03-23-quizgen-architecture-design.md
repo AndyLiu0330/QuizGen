@@ -100,7 +100,7 @@ A single multiple-choice question belonging to a quiz. (Scoped to MCQ only for i
 | POST   | /api/quizzes              | Generate quiz (params: session_id, num_questions, difficulty). Calls OpenAI. |
 | GET    | /api/quizzes/:id          | Get quiz with questions (hides correct answers until submitted) |
 | POST   | /api/quizzes/:id/submit   | Submit answers, auto-grade, return score and weak topics |
-| POST   | /api/quizzes/:id/retake   | Create a new quiz with the same questions (answers reset) |
+| POST   | /api/quizzes/:id/retake   | Create a new Quiz record with copied questions (preserves original attempt) |
 
 ### User Flow
 
