@@ -1297,6 +1297,7 @@ def _seed_material(db):
     """Helper to insert a material directly into the DB."""
     m = Material(
         file_name="test.pdf",
+        stored_name="abc123_test.pdf",
         file_type="pdf",
         file_size=1024,
         upload_date=datetime.now(timezone.utc),

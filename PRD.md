@@ -10,8 +10,14 @@
 
 # feature
     - drag or click to upload file
-    - user can re do the same Quiz again 
+    - user can re do the same Quiz again.
+    - Generate quesition should have the answer.
     - Quiz can choose how many questions , amd defficulty Level.
     - UI for user to answer the question, and submit answer. 
-    - grade user answer. 
-  
+    - grade user answer.
+    - should OCR or parser the file to extract text, then use AI to generate question and answer. Can use https://github.com/microsoft/markitdown for parsing pptx and pdf files.
+    - OPENAI API for AI generate questions and answers.
+    - .env file to store configurations
+
+# UI Skill
+  - Use ui-ux-pro-max skill to design the user interface for the quiz generator. 
