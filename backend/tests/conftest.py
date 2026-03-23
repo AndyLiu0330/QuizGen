@@ -8,20 +8,8 @@ from app.main import app
 
 
 @pytest.fixture
-def db_session():
-    engine = create_engine("sqlite:///:memory:")
-    Base.metadata.create_all(engine)
-    Session = sessionmaker(bind=engine)
-    session = Session()
-    yield session
-    session.close()
-    Base.metadata.drop_all(engine)
-
-
-@pytest.fixture
-def test_app(db_session):
-    """FastAPI test client with overridden DB dependency."""
-    # Use a shared connection so all sessions see the same in-memory DB
+def test_db():
+    """In-memory SQLite DB session, shared connection so all sessions see same data."""
     engine = create_engine(
         "sqlite:///:memory:",
         connect_args={"check_same_thread": False},
@@ -29,17 +17,27 @@ def test_app(db_session):
     connection = engine.connect()
     Base.metadata.create_all(bind=connection)
     TestSession = sessionmaker(autocommit=False, autoflush=False, bind=connection)
+    session = TestSession()
+    yield session
+    session.close()
+    Base.metadata.drop_all(bind=connection)
+    connection.close()
+
+
+@pytest.fixture
+def db_session(test_db):
+    """Alias for test_db for backwards compatibility."""
+    yield test_db
+
+
+@pytest.fixture
+def test_app(test_db):
+    """FastAPI test client with overridden DB dependency using the same connection as test_db."""
 
     def override_get_db():
-        session = TestSession()
-        try:
-            yield session
-        finally:
-            session.close()
+        yield test_db
 
     app.dependency_overrides[get_db] = override_get_db
     client = TestClient(app)
     yield client
     app.dependency_overrides.clear()
-    Base.metadata.drop_all(bind=connection)
-    connection.close()
