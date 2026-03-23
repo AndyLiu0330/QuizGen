@@ -218,6 +218,16 @@ services:
 | DATABASE_URL        | sqlite:///db/quizgen.db    | SQLite path          |
 | MAX_UPLOAD_SIZE_MB  | 50                         | Max upload size      |
 
+## UI Design System
+
+Full design system documented in `design-system/MASTER.md` with page-specific overrides in `design-system/pages/`.
+
+- **Style:** Minimalism & Swiss Style — clean, grid-based, WCAG AAA
+- **Colors:** Quiz blue (`#2563EB`) + purple secondary + amber accent + green/red for correct/wrong
+- **Typography:** Inter, single font family with weight variations
+- **Icons:** Lucide React (consistent line style)
+- **Framework:** Tailwind CSS
+
 ## Infrastructure Notes
 
 - SQLite DB file and uploads persisted via Docker volumes (survives container restarts)
