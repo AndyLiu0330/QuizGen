@@ -1,6 +1,9 @@
+import logging
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException
+
+logger = logging.getLogger(__name__)
 from sqlalchemy.orm import Session as DBSession
 
 from app.config import settings
@@ -44,9 +47,15 @@ async def generate_quiz(body: QuizCreate, db: DBSession = Depends(get_db)):
             difficulty=body.difficulty,
         )
     except ValueError as e:
+        logger.error("AI generation failed: %s", e)
         raise HTTPException(status_code=502, detail=f"AI generation failed: {str(e)}")
     except Exception as e:
-        raise HTTPException(status_code=502, detail=f"AI service error: {str(e)}")
+        logger.error("AI service error: %s", e, exc_info=True)
+        msg = str(e)
+        # Don't expose raw HTML (e.g. Cloudflare block pages) to the client
+        if "<!DOCTYPE" in msg or "<html" in msg.lower():
+            msg = "AI service is temporarily unavailable. Please try again later."
+        raise HTTPException(status_code=502, detail=f"AI service error: {msg}")
 
     quiz = Quiz(
         session_id=session.id,
