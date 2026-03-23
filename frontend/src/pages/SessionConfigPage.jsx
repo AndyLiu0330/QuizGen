@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getSession, generateQuiz } from "../api";
+import { getSession, generateQuiz, deleteQuiz } from "../api";
+import { Trash2 } from "lucide-react";
 import QuizConfigForm from "../components/QuizConfigForm";
 
 function scoreColor(score) {
@@ -39,6 +40,17 @@ export default function SessionConfigPage() {
       setError(err.message);
     } finally {
       setIsGenerating(false);
+    }
+  }
+
+  async function handleDeleteQuiz(e, quizId) {
+    e.stopPropagation();
+    if (!window.confirm("Delete this quiz? This cannot be undone.")) return;
+    try {
+      await deleteQuiz(quizId);
+      await loadSession();
+    } catch (err) {
+      setError(err.message);
     }
   }
 
@@ -82,15 +94,24 @@ export default function SessionConfigPage() {
                   {new Date(quiz.created_at).toLocaleDateString()}
                 </p>
               </div>
-              {quiz.score !== null ? (
-                <span className={`text-sm font-semibold ${scoreColor(quiz.score)}`}>
-                  {quiz.score}%
-                </span>
-              ) : (
-                <span className="text-xs px-2 py-1 bg-muted text-muted-foreground rounded-md">
-                  In Progress
-                </span>
-              )}
+              <div className="flex items-center gap-2">
+                {quiz.score !== null ? (
+                  <span className={`text-sm font-semibold ${scoreColor(quiz.score)}`}>
+                    {quiz.score}%
+                  </span>
+                ) : (
+                  <span className="text-xs px-2 py-1 bg-muted text-muted-foreground rounded-md">
+                    In Progress
+                  </span>
+                )}
+                <button
+                  onClick={(e) => handleDeleteQuiz(e, quiz.id)}
+                  className="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors duration-150 cursor-pointer"
+                  title="Delete quiz"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
             </div>
           ))
         )}

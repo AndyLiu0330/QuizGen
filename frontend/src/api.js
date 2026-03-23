@@ -76,6 +76,16 @@ export function submitQuiz(id, answers) {
   });
 }
 
+export function deleteQuiz(id) {
+  return fetch(`${API_BASE}/quizzes/${id}`, { method: "DELETE" }).then((res) => {
+    if (!res.ok) {
+      return res.json().catch(() => ({ detail: "Delete failed" })).then((err) => {
+        throw new Error(err.detail);
+      });
+    }
+  });
+}
+
 export function retakeQuiz(id) {
   return request(`/quizzes/${id}/retake`, { method: "POST" });
 }

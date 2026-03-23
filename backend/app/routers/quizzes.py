@@ -154,6 +154,16 @@ def submit_quiz(quiz_id: int, body: QuizSubmit, db: DBSession = Depends(get_db))
     )
 
 
+@router.delete("/quizzes/{quiz_id}", status_code=204)
+def delete_quiz(quiz_id: int, db: DBSession = Depends(get_db)):
+    quiz = db.query(Quiz).filter(Quiz.id == quiz_id).first()
+    if not quiz:
+        raise HTTPException(status_code=404, detail="Quiz not found")
+    db.delete(quiz)
+    db.commit()
+    return None
+
+
 @router.post("/quizzes/{quiz_id}/retake", response_model=QuizOut)
 def retake_quiz(quiz_id: int, db: DBSession = Depends(get_db)):
     original = db.query(Quiz).filter(Quiz.id == quiz_id).first()
