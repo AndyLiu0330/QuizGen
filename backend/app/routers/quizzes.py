@@ -72,12 +72,32 @@ async def generate_quiz(body: QuizCreate, db: DBSession = Depends(get_db)):
     return quiz
 
 
-@router.get("/quizzes/{quiz_id}", response_model=QuizOut)
+@router.get("/quizzes/{quiz_id}", response_model=QuizResult | QuizOut)
 def get_quiz(quiz_id: int, db: DBSession = Depends(get_db)):
     quiz = db.query(Quiz).filter(Quiz.id == quiz_id).first()
     if not quiz:
         raise HTTPException(status_code=404, detail="Quiz not found")
-    return quiz
+
+    if quiz.completed_at is not None:
+        # Return full results with correct answers and weak topics
+        question_dicts = [
+            {"correct_answer": q.correct_answer, "user_answer": q.user_answer, "topic": q.topic}
+            for q in quiz.questions
+        ]
+        weak_topics = grading_service.compute_weak_topics(question_dicts)
+        return QuizResult(
+            id=quiz.id,
+            session_id=quiz.session_id,
+            num_questions=quiz.num_questions,
+            difficulty=quiz.difficulty,
+            score=quiz.score,
+            created_at=quiz.created_at,
+            completed_at=quiz.completed_at,
+            questions=quiz.questions,
+            weak_topics=weak_topics,
+        )
+
+    return QuizOut.model_validate(quiz)
 
 
 @router.post("/quizzes/{quiz_id}/submit", response_model=QuizResult)
