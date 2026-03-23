@@ -276,6 +276,7 @@ from app.models import Material, Session, Quiz, Question
 def test_create_material(db_session):
     material = Material(
         file_name="test.pdf",
+        stored_name="abc123_test.pdf",
         file_type="pdf",
         file_size=1024,
         upload_date=datetime.now(timezone.utc),
@@ -293,6 +294,7 @@ def test_create_material(db_session):
 def test_material_session_relationship(db_session):
     material = Material(
         file_name="test.pdf",
+        stored_name="abc123_test.pdf",
         file_type="pdf",
         file_size=1024,
         upload_date=datetime.now(timezone.utc),
@@ -316,6 +318,7 @@ def test_material_session_relationship(db_session):
 def test_quiz_question_relationship(db_session):
     material = Material(
         file_name="test.pdf",
+        stored_name="abc123_test.pdf",
         file_type="pdf",
         file_size=1024,
         upload_date=datetime.now(timezone.utc),
@@ -407,7 +410,8 @@ class Material(Base):
     __tablename__ = "materials"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    file_name = Column(String, nullable=False)
+    file_name = Column(String, nullable=False)  # Original filename for display
+    stored_name = Column(String, nullable=False)  # UUID-prefixed filename on disk
     file_type = Column(String, nullable=False)
     file_size = Column(Integer, nullable=False)
     upload_date = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
@@ -1207,6 +1211,7 @@ async def upload_material(file: UploadFile, db: DBSession = Depends(get_db)):
 
     material = Material(
         file_name=file.filename,
+        stored_name=stored_name,
         file_type=file_parser.get_file_extension(file.filename),
         file_size=file_size,
         extracted_text=extracted_text,
@@ -1229,8 +1234,8 @@ def delete_material(material_id: int, db: DBSession = Depends(get_db)):
     if not material:
         raise HTTPException(status_code=404, detail="Material not found")
 
-    # Delete file from disk
-    file_path = os.path.join(UPLOAD_DIR, material.file_name)
+    # Delete file from disk using stored_name (UUID-prefixed)
+    file_path = os.path.join(UPLOAD_DIR, material.stored_name)
     if os.path.exists(file_path):
         os.remove(file_path)
 
@@ -1484,6 +1489,7 @@ from app.models import Material, Session as SessionModel, Quiz, Question
 def _seed_session(db):
     material = Material(
         file_name="test.pdf",
+        stored_name="abc123_test.pdf",
         file_type="pdf",
         file_size=1024,
         upload_date=datetime.now(timezone.utc),
@@ -1826,7 +1832,7 @@ git commit -m "feat: add quizzes API with generate, get, submit, and retake endp
 ## Task 10: Frontend Scaffolding
 
 **Files:**
-- Create: `frontend/package.json`, `frontend/vite.config.js`, `frontend/tailwind.config.js`
+- Create: `frontend/package.json`, `frontend/vite.config.js`
 - Create: `frontend/index.html`, `frontend/src/main.jsx`, `frontend/src/index.css`
 
 - [ ] **Step 1: Initialize frontend project**
