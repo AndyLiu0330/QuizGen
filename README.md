@@ -2,6 +2,20 @@
 
 A web app that generates multiple-choice quizzes from uploaded documents. Upload a PDF or PPTX, let AI create questions, take quizzes, get auto-graded, and track your weak topics over time.
 
+## Screenshots
+
+| Dashboard | Quiz Configuration |
+|:-:|:-:|
+| ![Dashboard](screenshots/01-upload-page.png) | ![Quiz Config](screenshots/02-session-config.png) |
+
+| Quiz Taking | Results & Weak Topics |
+|:-:|:-:|
+| ![Quiz Taking](screenshots/03-quiz-taking.png) | ![Results](screenshots/04-results.png) |
+
+| Quiz History |
+|:-:|
+| ![History](screenshots/05-history.png) |
+
 ## Features
 
 - **Document Upload** — Drag-and-drop PDF/PPTX files (up to 50 MB). Text is automatically extracted and stored for quiz generation.
