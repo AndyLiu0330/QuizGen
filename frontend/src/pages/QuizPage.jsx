@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Loader2 } from "lucide-react";
+import { Loader2, Send } from "lucide-react";
 import { getQuiz, submitQuiz } from "../api";
 import QuestionCard from "../components/QuestionCard";
 
@@ -48,8 +48,8 @@ export default function QuizPage() {
 
   if (!quiz) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 gap-3">
-        <Loader2 className="h-8 w-8 text-primary animate-spin" />
+      <div className="flex flex-col items-center justify-center py-20 gap-3">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
         <p className="text-sm text-muted-foreground">Loading quiz...</p>
       </div>
     );
@@ -58,26 +58,32 @@ export default function QuizPage() {
   const answeredCount = Object.keys(answers).length;
   const totalCount = quiz.questions.length;
   const allAnswered = answeredCount === totalCount;
+  const progress = (answeredCount / totalCount) * 100;
 
   return (
-    <div className="space-y-6 pb-24">
+    <div className="space-y-6 pb-28 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Quiz</h1>
+        <h1 className="font-serif text-3xl font-700 text-foreground tracking-tight">Quiz</h1>
         <p className="text-sm text-muted-foreground mt-1">
           <span className="capitalize">{quiz.difficulty}</span> · {quiz.num_questions} questions
         </p>
       </div>
 
       {/* Progress bar */}
-      <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
-        <div
-          className="h-full bg-primary transition-all duration-300"
-          style={{ width: `${(answeredCount / totalCount) * 100}%` }}
-        />
+      <div className="space-y-1.5">
+        <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+          <div
+            className="h-full bg-primary rounded-full transition-all duration-500 ease-out"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+        <p className="text-xs text-muted-foreground text-right">{answeredCount}/{totalCount} answered</p>
       </div>
 
       {error && (
-        <div className="p-3 rounded-md bg-destructive/10 text-destructive text-sm">{error}</div>
+        <div className="p-3.5 rounded-xl bg-destructive/8 border border-destructive/20 text-destructive text-sm font-medium">
+          {error}
+        </div>
       )}
 
       <div className="space-y-4">
@@ -94,17 +100,33 @@ export default function QuizPage() {
       </div>
 
       {/* Sticky submit bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border p-4">
-        <div className="mx-auto max-w-5xl flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">
-            {answeredCount} of {totalCount} answered
-          </span>
+      <div className="fixed bottom-0 left-64 right-0 bg-surface-container/90 backdrop-blur-sm border-t border-outline-variant/10 p-4 z-10">
+        <div className="mx-auto max-w-screen-2xl px-12 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex -space-x-0.5">
+              {Array.from({ length: totalCount }, (_, i) => (
+                <div
+                  key={i}
+                  className={`w-2 h-2 rounded-full border border-card transition-colors duration-200 ${
+                    answers[quiz.questions[i]?.id] !== undefined ? "bg-primary" : "bg-border"
+                  }`}
+                />
+              ))}
+            </div>
+            <span className="text-sm text-muted-foreground">
+              {answeredCount} of {totalCount}
+            </span>
+          </div>
           <button
             onClick={handleSubmit}
             disabled={!allAnswered || isSubmitting}
-            className="px-6 py-2.5 bg-primary text-on-primary text-sm font-medium rounded-md hover:opacity-90 transition-opacity duration-150 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center gap-2"
+            className="px-6 py-2.5 bg-primary text-on-primary text-sm font-semibold rounded-lg hover:brightness-110 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer flex items-center gap-2 shadow-sm"
           >
-            {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
+            {isSubmitting ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
             Submit Quiz
           </button>
         </div>

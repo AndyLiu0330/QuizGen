@@ -1,31 +1,112 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,300;1,6..72,400&family=Inter:wght@300;400;500;600;700&display=swap");
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Inter", "system-ui", "sans-serif";
+  --font-serif: "Newsreader", "Georgia", "serif";
 
-  --color-primary: #2563eb;
-  --color-on-primary: #ffffff;
-  --color-secondary: #7c3aed;
-  --color-on-secondary: #ffffff;
-  --color-accent: #f59e0b;
-  --color-on-accent: #0f172a;
-  --color-background: #eff6ff;
-  --color-foreground: #0f172a;
-  --color-card: #ffffff;
-  --color-card-foreground: #0f172a;
-  --color-muted: #f1f5fd;
-  --color-muted-foreground: #64748b;
-  --color-border: #e4ecfc;
-  --color-destructive: #dc2626;
-  --color-on-destructive: #ffffff;
-  --color-success: #16a34a;
-  --color-on-success: #ffffff;
-  --color-ring: #2563eb;
+  /* Surface hierarchy */
+  --color-background: #0e0e0e;
+  --color-surface: #0e0e0e;
+  --color-surface-dim: #0e0e0e;
+  --color-surface-container-lowest: #000000;
+  --color-surface-container-low: #131313;
+  --color-surface-container: #191a1a;
+  --color-surface-container-high: #1f2020;
+  --color-surface-container-highest: #252626;
+  --color-surface-bright: #2b2c2c;
+  --color-surface-variant: #252626;
+
+  /* Primary teal */
+  --color-primary: #83d3db;
+  --color-primary-dim: #75c5cd;
+  --color-primary-container: #004f54;
+  --color-on-primary: #00484c;
+  --color-on-primary-container: #8ddde5;
+
+  /* Secondary */
+  --color-secondary: #9b9e9e;
+  --color-secondary-container: #383c3c;
+  --color-on-secondary: #1d2121;
+  --color-on-secondary-container: #bdc0c0;
+
+  /* Tertiary (success) */
+  --color-tertiary: #e8ffef;
+  --color-tertiary-container: #d1f3de;
+  --color-on-tertiary-container: #3f5d4d;
+
+  /* Text */
+  --color-foreground: #e7e5e5;
+  --color-on-surface: #e7e5e5;
+  --color-on-surface-variant: #acabaa;
+  --color-on-background: #e7e5e5;
+  --color-muted-foreground: #acabaa;
+
+  /* Card / UI */
+  --color-card: #191a1a;
+  --color-card-foreground: #e7e5e5;
+  --color-muted: #252626;
+  --color-border: #484848;
+  --color-outline: #767575;
+  --color-outline-variant: #484848;
+
+  /* Error */
+  --color-error: #ee7d77;
+  --color-error-container: #7f2927;
+  --color-on-error: #490106;
+  --color-destructive: #ee7d77;
+  --color-on-destructive: #490106;
+
+  /* Success */
+  --color-success: #7dd3a8;
+  --color-on-success: #1a3a2a;
+
+  /* Accent (warnings, weak topics) */
+  --color-accent: #e9c176;
+  --color-on-accent: #553c00;
+
+  --color-ring: #83d3db;
+
+  --animate-fade-in: fade-in 0.5s ease-out both;
+  --animate-slide-up: slide-up 0.4s ease-out both;
+  --animate-scale-in: scale-in 0.3s ease-out both;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 body {
   background-color: var(--color-background);
   color: var(--color-foreground);
   font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+/* Selection color */
+::selection {
+  background-color: rgba(131, 211, 219, 0.2);
+  color: #e7e5e5;
+}
+
+/* Staggered animation delays for lists */
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.1s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.2s; }
+.stagger-5 { animation-delay: 0.25s; }
+.stagger-6 { animation-delay: 0.3s; }
+.stagger-7 { animation-delay: 0.35s; }
+.stagger-8 { animation-delay: 0.4s; }
